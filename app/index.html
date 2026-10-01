@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PneumoScan AI — Next-Gen Thoracic Radiography & Multimodal Clinical Decision Support</title>
+  <meta name="description" content="State-of-the-art Deep Learning (DenseNet121, ResNet50, EfficientNet) + XGBoost Multimodal Clinical Risk Fusion for Chest X-Ray Pneumonia and COVID-19 Detection." />
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body class="dark-theme">
+  <!-- Glowing Background Medical Orbs -->
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+  <div class="glow-orb orb-3"></div>
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar glass-panel">
+    <div class="nav-brand">
+      <div class="brand-icon pulse">
+        <i class="fa-solid fa-lungs"></i>
+      </div>
+      <div class="brand-text">
+        <div class="brand-title">PneumoScan <span class="gradient-text">AI</span> <span class="pro-badge">PRO v1.2</span></div>
+        <div class="brand-tagline">Thoracic Radiography & Multimodal Clinical Intelligence Cockpit</div>
+      </div>
+    </div>
+
+    <!-- Live Animated ECG Pulse & Telemetry -->
+    <div class="nav-telemetry">
+      <div class="ecg-monitor-pill" title="Telemetry Heart Rate Monitor">
+        <svg class="ecg-svg" viewBox="0 0 120 28">
+          <polyline class="ecg-path" points="0,14 25,14 32,4 38,24 44,8 50,18 55,14 120,14" />
+        </svg>
+        <span class="ecg-bpm"><strong id="telemetry-hr">72</strong> BPM</span>
+      </div>
+
+      <div class="telemetry-pill">
+        <span class="status-dot live"></span>
+        <span class="telemetry-label">PyTorch 2.8 • GPU Ready</span>
+      </div>
+
+      <div class="physician-pill" title="Attending Physician On Duty">
+        <i class="fa-solid fa-user-doctor icon-cyan"></i>
+        <span id="active-physician-badge">Dr. Murlidhar, MD</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+
+    <!-- Active Patient Banner & Quick Selector -->
+    <section class="benchmark-selector-section glass-panel">
+      <div class="benchmark-header-row">
+        <div>
+          <div class="section-badge"><i class="fa-solid fa-hospital-user"></i> Benchmark Patient Studies</div>
+          <div class="section-title-sm">Select a verified patient clinical case for instant multimodal triage, or upload custom DICOM/X-ray:</div>
+        </div>
+        <div class="patient-highlight-pill" id="active-patient-header-pill">
+          <i class="fa-solid fa-user-circle"></i>
+          <span>Active Patient: <strong id="header-patient-name">Sarah Jenkins</strong> (<span id="header-patient-id">PT-94021</span>)</span>
+        </div>
+      </div>
+      
+      <div class="benchmark-cards-grid" id="benchmark-cards-container">
+        <!-- Patient #1: Sarah Jenkins -->
+        <button class="benchmark-card active" onclick="loadBenchmarkCase('CASE-101-NORMAL')">
+          <div class="card-status normal-tag"><i class="fa-solid fa-circle-check"></i> Normal Study</div>
+          <div class="card-patient-name">Sarah Jenkins</div>
+          <div class="card-title">Patient #101 (PT-94021)</div>
+          <div class="card-desc">Clear lung fields • SpO2 99% • Afebrile</div>
+          <div class="card-meta">34yo Female | Pre-op Screening</div>
+        </button>
+
+        <!-- Patient #2: Arthur Pendelton -->
+        <button class="benchmark-card" onclick="loadBenchmarkCase('CASE-204-BACTERIAL')">
+          <div class="card-status bacterial-tag"><i class="fa-solid fa-biohazard"></i> Bacterial Lobar</div>
+          <div class="card-patient-name">Arthur Pendelton</div>
+          <div class="card-title">Patient #204 (PT-88192)</div>
+          <div class="card-desc">RLL Consolidation • SpO2 91% • 39.2°C</div>
+          <div class="card-meta">58yo Male | Purulent Sputum</div>
+        </button>
+
+        <!-- Patient #3: Elena Rostova -->
+        <button class="benchmark-card" onclick="loadBenchmarkCase('CASE-309-VIRAL')">
+          <div class="card-status viral-tag"><i class="fa-solid fa-virus"></i> Viral Interstitial</div>
+          <div class="card-patient-name">Elena Rostova</div>
+          <div class="card-title">Patient #309 (PT-77314)</div>
+          <div class="card-desc">Diffuse Reticular • SpO2 94% • 38.3°C</div>
+          <div class="card-meta">42yo Female | Dry Cough</div>
+        </button>
+
+        <!-- Patient #4: Robert Chen -->
+        <button class="benchmark-card" onclick="loadBenchmarkCase('CASE-412-COVID')">
+          <div class="card-status covid-tag"><i class="fa-solid fa-triangle-exclamation"></i> COVID-19 ARDS</div>
+          <div class="card-patient-name">Robert Chen</div>
+          <div class="card-title">Patient #412 (PT-66520)</div>
+          <div class="card-desc">Bilateral GGO • SpO2 87% • Severe</div>
+          <div class="card-meta">67yo Male | Hypoxemic Distress</div>
+        </button>
+      </div>
+    </section>
+
+    <!-- Core Diagnostic Grid -->
+    <div class="diagnostic-grid">
+
+      <!-- LEFT COLUMN: Radiography & Interactive Split Comparison Cockpit -->
+      <section class="cockpit-column glass-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <i class="fa-solid fa-x-ray icon-cyan"></i>
+            Radiographic Inspection & Visual Saliency
+          </div>
+          <div class="panel-actions">
+            <label class="toggle-control" title="Toggle Contrast-Limited Adaptive Histogram Equalization">
+              <input type="checkbox" id="clahe-toggle" checked onchange="handleImageParamChange()">
+              <span class="toggle-slider"></span>
+              <span class="toggle-text">CLAHE Boost</span>
+            </label>
+            <label class="toggle-control" title="Invert Grayscale LUT (Photonegative Mode)">
+              <input type="checkbox" id="invert-toggle" onchange="toggleInvert()">
+              <span class="toggle-slider"></span>
+              <span class="toggle-text">Invert</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Image Display & Interactive Split Viewport -->
+        <div class="viewport-card">
+          <!-- View Modes Navigation -->
+          <div class="viewport-tabs">
+            <button class="tab-btn active" id="tab-split" onclick="switchViewMode('split')">
+              <i class="fa-solid fa-sliders"></i> Interactive Split Curtain (Wipe)
+            </button>
+            <button class="tab-btn" id="tab-overlay" onclick="switchViewMode('overlay')">
+              <i class="fa-solid fa-layer-group"></i> Grad-CAM Overlay
+            </button>
+            <button class="tab-btn" id="tab-original" onclick="switchViewMode('original')">
+              <i class="fa-solid fa-image"></i> CLAHE Radiograph
+            </button>
+          </div>
+
+          <!-- Main Stage Viewport -->
+          <div class="image-stage-wrapper" id="image-stage">
+            
+            <!-- Standard Single Image View -->
+            <img id="main-xray-view" src="/static/assets/placeholder_xray.png" alt="Chest Radiograph Display" class="stage-image hidden" />
+
+            <!-- Interactive Before/After Split Curtain Comparison -->
+            <div class="split-comparison-container" id="split-container">
+              <!-- Before Image: Original / CLAHE -->
+              <img id="split-img-original" src="/static/assets/placeholder_xray.png" alt="Original Scan" class="split-image split-original" />
+              <div class="split-label split-label-left">Original CLAHE</div>
+              
+              <!-- After Image: Grad-CAM Overlay clipped by curtain -->
+              <div class="split-clipped-wrapper" id="split-clip">
+                <img id="split-img-overlay" src="/static/assets/placeholder_xray.png" alt="Grad-CAM Overlay" class="split-image split-overlay" />
+                <div class="split-label split-label-right">Grad-CAM Saliency</div>
+              </div>
+
+              <!-- Draggable Divider Handle -->
+              <div class="split-divider" id="split-divider" style="left: 50%;">
+                <div class="split-handle">
+                  <i class="fa-solid fa-arrows-left-right"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Loading Spinner Overlay -->
+            <div id="loading-overlay" class="stage-loading hidden">
+              <div class="spinner"></div>
+              <div class="loading-text">Analyzing Radiograph & Computing Grad-CAM...</div>
+            </div>
+          </div>
+
+          <!-- Saliency Controls Bar -->
+          <div class="saliency-controls-bar">
+            <div class="control-group">
+              <label for="gradcam-alpha"><i class="fa-solid fa-sliders"></i> Heatmap Intensity: <span id="alpha-val">50%</span></label>
+              <input type="range" id="gradcam-alpha" min="10" max="100" value="50" oninput="updateAlpha(this.value)">
+            </div>
+            <div class="control-group">
+              <label for="gradcam-colormap"><i class="fa-solid fa-palette"></i> Colormap:</label>
+              <select id="gradcam-colormap" onchange="changeColormap(this.value)">
+                <option value="JET">Jet (Thermal Hotspot)</option>
+                <option value="INFERNO">Inferno (High Contrast)</option>
+                <option value="VIRIDIS">Viridis (Perceptual)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shortcut Learning & Anatomical Saliency Auditor -->
+        <div class="shortcut-audit-card">
+          <div class="audit-header">
+            <span class="audit-title"><i class="fa-solid fa-shield-halved"></i> Shortcut Learning & Boundary Audit</span>
+            <span class="audit-badge badge-pass" id="audit-badge">Verified Lung Attention</span>
+          </div>
+          <p class="audit-desc" id="audit-desc">
+            The Grad-CAM gradient attention is concentrated in <strong>86.4%</strong> of the thoracic lung parenchyma, ruling out text marker, pacemaker, or clavicular edge shortcut bias.
+          </p>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="audit-bar" style="width: 86%;"></div>
+          </div>
+        </div>
+
+        <!-- Non-Xray Rejection Alert Banner -->
+        <div class="xray-rejection-banner hidden" id="rejection-banner">
+          <div class="rejection-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <div class="rejection-content">
+            <div class="rejection-title">Image Rejected: Non-Radiograph Detected</div>
+            <div class="rejection-msg" id="rejection-msg">
+              This medical AI system accepts ONLY Chest X-Rays. Personal photos, selfies, portraits, and non-radiographic images are strictly prohibited.
+            </div>
+          </div>
+          <button class="rejection-dismiss-btn" onclick="dismissRejectionBanner()">&times;</button>
+        </div>
+
+        <!-- Custom Upload Dropzone -->
+        <div class="upload-dropzone" id="dropzone" onclick="triggerFileInput()">
+          <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleFileUpload(event)">
+          <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+          <div class="upload-text">
+            <strong>Upload Patient Radiograph</strong> (DICOM, PNG, JPEG)
+          </div>
+          <div class="upload-hint">Monochrome Chest Radiographs Only • Selfies & Everyday Photos Rejected</div>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: Patient Metadata & Multimodal Intelligence -->
+      <section class="intelligence-column glass-panel">
+        
+        <!-- Patient Metadata & Tabular Vitals Input -->
+        <div class="panel-header">
+          <div class="panel-title">
+            <i class="fa-solid fa-notes-medical icon-cyan"></i>
+            Patient Vitals & Clinical EHR
+          </div>
+          <div class="provenance-pill" title="Transparent Multimodal Fusion">
+            <i class="fa-solid fa-circle-nodes"></i> CNN + Classical ML Fusion
+          </div>
+        </div>
+
+        <form id="vitals-form" class="vitals-grid-form" onsubmit="event.preventDefault(); runMultimodalFusion();">
+          
+          <!-- Patient Name & Physician Name -->
+          <div class="form-group">
+            <label for="input-patient-name"><i class="fa-solid fa-user"></i> Patient Full Name</label>
+            <input type="text" id="input-patient-name" value="Sarah Jenkins" placeholder="e.g. Elena Rostova" required oninput="syncPatientName(this.value)" />
+          </div>
+
+          <div class="form-group">
+            <label for="input-patient-id"><i class="fa-solid fa-id-badge"></i> Patient MRN / ID</label>
+            <input type="text" id="input-patient-id" value="PT-94021" required />
+          </div>
+
+          <div class="form-group">
+            <label for="input-physician"><i class="fa-solid fa-user-doctor"></i> Attending Physician</label>
+            <input type="text" id="input-physician" value="Dr. Murlidhar, MD" required />
+          </div>
+
+          <div class="form-group">
+            <label for="input-age"><i class="fa-solid fa-calendar-day"></i> Age (Years)</label>
+            <input type="number" id="input-age" value="34" min="1" max="110" required />
+          </div>
+
+          <div class="form-group">
+            <label for="input-sex"><i class="fa-solid fa-venus-mars"></i> Sex</label>
+            <select id="input-sex">
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="input-spo2"><i class="fa-solid fa-lungs"></i> SpO2 Pulse Ox (%)</label>
+            <input type="number" id="input-spo2" value="99" min="50" max="100" step="0.5" required oninput="evaluateSpO2Alert(this.value)" />
+          </div>
+
+          <div class="form-group">
+            <label for="input-temp"><i class="fa-solid fa-temperature-half"></i> Body Temp (°C)</label>
+            <input type="number" id="input-temp" value="36.8" min="34" max="43" step="0.1" required />
+          </div>
+
+          <div class="form-group">
+            <label for="input-resp"><i class="fa-solid fa-stopwatch-20"></i> Resp. Rate (bpm)</label>
+            <input type="number" id="input-resp" value="15" min="8" max="60" required />
+          </div>
+
+          <div class="form-group full-width-checkboxes">
+            <label class="checkbox-label">
+              <input type="checkbox" id="input-cough" />
+              <span>Persistent Productive Cough</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="input-fever" />
+              <span>Pyrexia / Chills Present</span>
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary glow-btn" id="run-fusion-btn">
+              <i class="fa-solid fa-bolt-lightning"></i> Compute Multimodal Risk Fusion
+            </button>
+          </div>
+        </form>
+
+        <!-- Composite Risk Score & Stratification -->
+        <div class="risk-card" id="risk-score-card">
+          <div class="risk-gauge-container">
+            <div class="circular-meter">
+              <svg class="meter-svg" viewBox="0 0 100 100">
+                <circle class="meter-track" cx="50" cy="50" r="42"></circle>
+                <circle class="meter-progress" id="meter-circle" cx="50" cy="50" r="42"></circle>
+              </svg>
+              <div class="meter-content">
+                <span class="meter-val" id="risk-percent">1.8%</span>
+                <span class="meter-label">INFECTION RISK</span>
+              </div>
+            </div>
+            
+            <div class="risk-summary">
+              <div class="risk-tier-badge low-risk" id="risk-tier-pill">Low / Normal Triage</div>
+              <div class="diagnosis-highlight" id="predicted-diagnosis">Normal Thoracic Study</div>
+              <div class="patient-tagline">Report prepared for: <strong id="summary-patient-name" class="gradient-text">Sarah Jenkins</strong></div>
+              <p class="risk-recommendation" id="clinical-recommendation">
+                Lung fields clear bilaterally without focal consolidation, interstitial thickening, or ground-glass opacities. Normal room-air oxygenation.
+              </p>
+            </div>
+          </div>
+
+          <!-- Multi-class CNN Probabilities -->
+          <div class="class-distribution-section">
+            <div class="dist-header">
+              <span>Deep Learning Ensemble Consensus</span>
+              <span class="model-tag">DenseNet121 + ResNet50 + EfficientNet</span>
+            </div>
+            <div class="prob-row">
+              <div class="prob-label">Normal:</div>
+              <div class="prob-bar-container"><div class="prob-fill normal-fill" id="prob-normal" style="width: 98.2%;"></div></div>
+              <div class="prob-val" id="val-normal">98.2%</div>
+            </div>
+            <div class="prob-row">
+              <div class="prob-label">Bacterial:</div>
+              <div class="prob-bar-container"><div class="prob-fill bacterial-fill" id="prob-bacterial" style="width: 0.8%;"></div></div>
+              <div class="prob-val" id="val-bacterial">0.8%</div>
+            </div>
+            <div class="prob-row">
+              <div class="prob-label">Viral:</div>
+              <div class="prob-bar-container"><div class="prob-fill viral-fill" id="prob-viral" style="width: 0.6%;"></div></div>
+              <div class="prob-val" id="val-viral">0.6%</div>
+            </div>
+            <div class="prob-row">
+              <div class="prob-label">COVID-19:</div>
+              <div class="prob-bar-container"><div class="prob-fill covid-fill" id="prob-covid" style="width: 0.4%;"></div></div>
+              <div class="prob-val" id="val-covid">0.4%</div>
+            </div>
+          </div>
+
+          <!-- Tabular Feature Attributions (SHAP Explanations) -->
+          <div class="shap-attributions-section">
+            <div class="shap-title"><i class="fa-solid fa-chart-simple"></i> Clinical Feature Risk Drivers (SHAP Attribution)</div>
+            <div class="shap-list" id="shap-factors-container">
+              <div class="shap-item">
+                <span class="shap-feature">SpO2 (Pulse Oximetry 99%)</span>
+                <span class="shap-impact protective">-0.10 (Protective)</span>
+              </div>
+              <div class="shap-item">
+                <span class="shap-feature">Normothermic (36.8°C)</span>
+                <span class="shap-impact protective">-0.05 (Protective)</span>
+              </div>
+              <div class="shap-item">
+                <span class="shap-feature">Respiratory Rate (15 bpm)</span>
+                <span class="shap-impact neutral">-0.04 (Normal)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- PDF & Modal Actions -->
+          <div class="pdf-export-row">
+            <button class="btn-pdf-preview" onclick="openReportModal()">
+              <i class="fa-solid fa-eye"></i> View Full Report Preview
+            </button>
+            <button class="btn-pdf-export" id="download-pdf-btn" onclick="downloadOfficialReport()">
+              <i class="fa-solid fa-file-pdf"></i> Download Official Diagnostic PDF
+            </button>
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- Educational & Technical Architecture Showcase -->
+    <section class="architecture-showcase glass-panel">
+      <div class="arch-header">
+        <div class="arch-title"><i class="fa-solid fa-network-wired"></i> End-to-End Medical Deep Learning Architecture</div>
+        <div class="arch-subtitle">Zero Patient-Level Data Leakage • CLAHE • Focal Loss • DenseNet-121 • XGBoost Fusion</div>
+      </div>
+
+      <div class="arch-cards-grid">
+        <div class="arch-card">
+          <div class="arch-card-icon"><i class="fa-solid fa-filter"></i></div>
+          <h4>CLAHE Contrast Equalization</h4>
+          <p>Local adaptive histogram equalization (clip limit 2.0, 8x8 grid) reveals subtle parenchymal opacities obscured in underexposed radiographs.</p>
+        </div>
+
+        <div class="arch-card">
+          <div class="arch-card-icon"><i class="fa-solid fa-user-shield"></i></div>
+          <h4>Zero Patient-Level Leakage</h4>
+          <p>Partitions Kermany/COVID data strictly by patient ID (regex group extraction) ensuring no patient appears in both train and validation sets.</p>
+        </div>
+
+        <div class="arch-card">
+          <div class="arch-card-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+          <h4>Focal Loss & Class Weights</h4>
+          <p>Counters the 3x pneumonia imbalance using inverse-frequency loss weighting and Focal Loss γ=2.0 to penalize minority misclassifications.</p>
+        </div>
+
+        <div class="arch-card">
+          <div class="arch-card-icon"><i class="fa-solid fa-diagram-project"></i></div>
+          <h4>Two-Phase Fine Tuning</h4>
+          <p>Phase 1 trains the classification head (lr=1e-3, frozen backbone); Phase 2 unfreezes deep blocks with low lr (1e-5) with cosine scheduling.</p>
+        </div>
+
+        <div class="arch-card">
+          <div class="arch-card-icon"><i class="fa-solid fa-shuffle"></i></div>
+          <h4>Multimodal XGBoost Fusion</h4>
+          <p>Blends CNN image probabilities with patient vitals (SpO2, Temp, Age) for calibrated screening risk stratification.</p>
+        </div>
+
+        <div class="arch-card">
+          <div class="arch-card-icon"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+          <h4>Grad-CAM + Saliency Audit</h4>
+          <p>Backpropagates class gradients to the final convolutional feature maps, verifying true lung involvement vs hospital marker shortcuts.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Report Preview Modal -->
+  <div class="modal-overlay hidden" id="report-modal">
+    <div class="report-modal-content glass-panel">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-file-medical icon-cyan"></i>
+          Official Thoracic Diagnostic Report Preview
+        </div>
+        <button class="modal-close-btn" onclick="closeReportModal()">&times;</button>
+      </div>
+
+      <div class="modal-body" id="modal-report-body">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="window.print()">
+          <i class="fa-solid fa-print"></i> Print Report
+        </button>
+        <button class="btn-primary" onclick="downloadOfficialReport()">
+          <i class="fa-solid fa-file-pdf"></i> Download Signed PDF Document
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-content">
+      <span>PneumoScan AI System • Thoracic Radiography & Multimodal Clinical Decision Support • Antigravity Engineering</span>
+      <span class="footer-legal">For clinical decision support only. Final diagnoses require certified radiologist confirmation.</span>
+    </div>
+  </footer>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>

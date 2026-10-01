@@ -1,0 +1,86 @@
+[
+  {
+    "id": "CASE-101-NORMAL",
+    "image_path": "data/samples\\patient_0101_normal.png",
+    "filename": "patient_0101_normal.png",
+    "label": "Normal",
+    "label_idx": 0,
+    "patient_info": {
+      "patient_id": "PT-94021",
+      "patient_name": "Sarah Jenkins",
+      "physician_name": "Dr. Murlidhar, MD",
+      "age": 34,
+      "sex": "Female",
+      "temperature": 36.8,
+      "spo2": 99,
+      "respiratory_rate": 15,
+      "heart_rate": 72,
+      "cough": false,
+      "fever": false,
+      "clinical_notes": "Routine pre-operative screening for elective cholecystectomy. No dyspnea, no cough. Lungs clear to auscultation bilaterally."
+    }
+  },
+  {
+    "id": "CASE-204-BACTERIAL",
+    "image_path": "data/samples\\patient_0204_bacteria.png",
+    "filename": "patient_0204_bacteria.png",
+    "label": "Bacterial Pneumonia",
+    "label_idx": 1,
+    "patient_info": {
+      "patient_id": "PT-88192",
+      "patient_name": "Arthur Pendelton",
+      "physician_name": "Dr. Murlidhar, MD",
+      "age": 58,
+      "sex": "Male",
+      "temperature": 39.2,
+      "spo2": 91,
+      "respiratory_rate": 26,
+      "heart_rate": 104,
+      "cough": true,
+      "fever": true,
+      "clinical_notes": "Acute onset 3-day history of productive cough with purulent rust-colored sputum, right pleuritic chest pain, and rigors. Auscultation reveals bronchial breath sounds and crackles over right lower base."
+    }
+  },
+  {
+    "id": "CASE-309-VIRAL",
+    "image_path": "data/samples\\patient_0309_viral.png",
+    "filename": "patient_0309_viral.png",
+    "label": "Viral Pneumonia",
+    "label_idx": 2,
+    "patient_info": {
+      "patient_id": "PT-77314",
+      "patient_name": "Elena Rostova",
+      "physician_name": "Dr. Murlidhar, MD",
+      "age": 42,
+      "sex": "Female",
+      "temperature": 38.3,
+      "spo2": 94,
+      "respiratory_rate": 21,
+      "heart_rate": 88,
+      "cough": true,
+      "fever": true,
+      "clinical_notes": "Progressive non-productive dry cough and malaise for 6 days following viral upper respiratory prodrome. Diffuse scattered expiratory wheezes and minimal fine crackles."
+    }
+  },
+  {
+    "id": "CASE-412-COVID",
+    "image_path": "data/samples\\patient_0412_covid.png",
+    "filename": "patient_0412_covid.png",
+    "label": "COVID-19",
+    "label_idx": 3,
+    "patient_info": {
+      "patient_id": "PT-66520",
+      "patient_name": "Robert Chen",
+      "physician_name": "Dr. Murlidhar, MD",
+      "age": 67,
+      "sex": "Male",
+      "temperature": 38.8,
+      "spo2": 87,
+      "respiratory_rate": 28,
+      "heart_rate": 112,
+      "cough": true,
+      "fever": true,
+      "clinical_notes": "Day 9 of PCR-confirmed SARS-CoV-2. Acute hypoxemic respiratory failure with dyspnea at rest, tachypnea, and peripheral bilateral desaturation requiring high-flow nasal cannula."
+    }
+  }
+]
