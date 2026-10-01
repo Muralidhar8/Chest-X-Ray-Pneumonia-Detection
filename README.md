@@ -244,12 +244,17 @@ python scripts/make_placeholder.py
 pytest tests/ -v
 ```
 
-### 4. Launch Web Application & API Server
+### 4. Launch Interactive Web Diagnostic Cockpit
+```bash
+python app/server.py
+```
+Open your browser and navigate to:
+👉 **`http://127.0.0.1:8000`** or **`http://localhost:8000`**
+
+### 5. Launch FastAPI REST Engine (Optional)
 ```bash
 python -m uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
 ```
-Navigate to:
-- **Interactive Web Dashboard:** `http://localhost:8000/`
 - **Interactive Swagger API Docs:** `http://localhost:8000/docs`
 
 ### 5. Launch Alternative Streamlit App
